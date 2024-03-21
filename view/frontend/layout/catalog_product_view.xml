@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="MK_CustomSwatches::css/mk_customswatches.css" />
+    </head>
+    <body>
+        <referenceContainer name="product.info.main">           
+            <referenceBlock name="product.info.options.wrapper">
+                <block class="MK\CustomSwatches\Block\Swatches\Index" name="product.info.custom.swatches" template="MK_CustomSwatches::customswatches/option_js.phtml"/>
+            </referenceBlock>
+        </referenceContainer>
+    </body>
+</page>

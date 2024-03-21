@@ -1,0 +1,33 @@
+#product-options-wrapper {
+    position: relative;
+}
+
+.swatches-container .swatch-img,
+.swatches-container .swatch-span {
+    margin: 0 3px 0 0;
+    cursor: pointer;
+}
+
+.swatches-container .swatch-img {
+    border: 1px solid transparent;
+    display: inline-block;
+    border-radius: 50px;
+    height: 30px;
+    width: 30px;
+    padding: 2px;
+}
+
+.swatches-container .swatch-img.current {
+    border: 1px solid #7d7d7d;
+}
+
+.swatches-container .swatch-span {}
+
+.products-grid li.item.hklist {
+    padding: 12px 10px 10px;
+}
+
+.products-grid .hklist .actions {
+    bottom: 0;
+    position: relative;
+}

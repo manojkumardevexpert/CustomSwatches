@@ -1,0 +1,243 @@
+<?php
+$enable = $block->getEnable();
+$hkswatches = $block->getOptionSwatches();
+$jsonHelper = $this->helper('Magento\Framework\Json\Helper\Data');
+$swatches = $jsonHelper->jsonEncode($hkswatches);
+
+
+if ($enable) {
+?>
+
+    <script type="text/javascript">
+        require(
+            ["jquery", "domReady!"],
+            function($) {
+                try {
+                    var swatches = <?php echo $swatches ?>;
+
+                    function find_swatch(key, value) {
+                        for (var i in swatches) {
+                            if (swatches[i].key == key && swatches[i].value == value)
+                                return swatches[i];
+                        }
+                        return null;
+                    }
+
+                    function has_swatch_key(key) {
+                        for (var i in swatches) {
+                            if (swatches[i].key == key)
+                                return true;
+                        }
+                        return false;
+                    }
+
+                    function create_swatches(label, select) {
+
+                        if (select) {
+                            var sw = $('<div class="swatches-container" id="swatch_container_' + $(select).attr("id") + '"></div>');
+                            $(sw).insertAfter(select);
+                        }
+
+                        select.swatchLabel = label;
+                        select.swatchElement = sw;
+
+                        $(select).css({
+                            position: 'absolute',
+                            top: '-9999px'
+                        });
+
+                        var i = 0;
+                
+
+               
+                        $(select[0].options).each(function() {
+                            if ($(this).val()) {
+                                    var elm;
+                                    var key = trim($(this).html());
+                                    if ($(this).attr('price')) {
+                                        key = trim(key.replace(/\+([^+]+)$/, ''));
+                                    }
+                                    var item = find_swatch(label, key);
+                                    if (item) {
+                                        let splitText = $(this).text();
+                                        let title = splitText.split("+");
+                                        if(title[0])
+                                        {
+                                            title = $.trim(title[0]);
+                                        }
+                                        if(title == "Rose gold")
+                                        {
+                                            title = "Rose";
+                                        }
+                                        let addCls = "";
+                                        if(title == "None")
+                                        {
+                                            addCls = "current ";
+                                        }
+                                        let colorCls = " selected_color_"+title.toLowerCase();
+                                        addCls += colorCls;
+                                        var imgsrc = '<?php echo $block->getMediaUrl() ?>hk_option_swatches/' + item.img;
+                                        elm = "<div><img src='" + imgsrc + "' alt='"+title+"' title='"+title+"' class='swatch-img "+addCls+" selected_product_option_"+$(this).val()+"' id='"+$(select).attr("id")+"_swatches_"+i+"' data-id='" + i + "' data-select='" + $(select).attr("id") + "'><span style='display:none' class='swatches_color_title'>"+title+"</span></div>";   
+                                    } else {
+                                            elm = "<a  class='swatch-span' title='"+$(this).text()+"' data-id='" + i + "' data-select='" + $(select).attr("id") + "'>" + $(this).text() + "</a>";
+                                    }
+                                    sw.append(elm);
+                           }
+                            i++;
+                     
+                        });
+
+                    }
+
+                    function recreate_swatches_recursive(select) {
+                        if (select.swatchElement) {
+                            select.up().removeChild(select.swatchElement);
+                            select.swatchElement = null;
+                        }
+
+                        if (!select.disabled) {
+                            create_swatches(select.swatchLabel, select);
+                        }
+
+                        if (select.nextSetting) {
+                            recreate_swatches_recursive(select.nextSetting);
+                        }
+                    }
+
+                    function fireEvent(element, event) {
+                        if (document.createEventObject) {
+                            var evt = document.createEventObject();
+                            return element.fireEvent('on' + event, evt)
+                        } else {
+                            var evt = document.createEvent("HTMLEvents");
+                            evt.initEvent(event, true, true);
+                            return !element.dispatchEvent(evt);
+                        }
+                    }
+
+                    function trim(str) {
+                        return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+                    }
+
+                    $(document).on('click', '.swatches-container .swatch-img, .swatches-container .swatch-span', function() {
+                        var optID = $(this).attr('data-id');
+                        var selectID = $(this).attr('data-select');
+                        $("#" + selectID).prop('selectedIndex', optID);
+                        $("#swatch_container_" + selectID + " .swatch-img").removeClass("current");
+                        $(this).addClass("current");
+                        $(function() {
+                            $('select').change(function() {
+                                var data = $(this).val();
+                            });
+                        });
+                        $('select').trigger('change');
+
+                    });
+                    $(document).ready(function() {
+                        // setTimeout(function() {
+                        //     $('.swatches-container .swatch-img, .swatches-container .swatch-span').each(function() {
+                        //         var optID = $(this).attr('data-id');
+                        //         var selectID = $(this).attr('data-select');
+                        //         $("#" + selectID + " option[value='" + optID + "']").prop('selected', true);
+                        //         jQuery('#swatch_container_' + selectID + ' img.current').trigger('click');
+                        //     });
+                        // }, 9000);
+                    });
+                    $('#product-options-wrapper input.product-custom-option').each(function() {
+                        var Inputlabel = '';
+                        Inputlabel = $(this).parents(".field").find("label.label span").html();
+                        Inputlabel = trim(Inputlabel);
+
+                        Inputlabel = Inputlabel.toLowerCase();
+
+                        inputString = Inputlabel.replaceAll(' ', '_');
+
+                        $(this).addClass(inputString);
+                    });
+
+                    $('#product-options-wrapper select.product-custom-option').each(function() {
+                        var label = '';
+                        label = $(this).parents(".field").find("label.label span").html();
+                        label = trim(label);
+
+                        if (label.toLowerCase() === "cap color") {
+                            $(this).addClass("cap_Colour");
+                        }
+                        if (label.toLowerCase() === "gown colour") {
+                            $(this).addClass("gown_Colour");
+                        }
+
+                        if (label.toLowerCase() === "embroidery color - right") {
+                            $(this).addClass("gown_embroidery_color_right");
+                        }
+
+                        if (label.toLowerCase() === "embroidery color - left") {
+                            $(this).addClass("gown_embroidery_color_left");
+                        }
+
+                        if (label.toLowerCase() === "strimma color") {
+                            $(this).addClass("strimma_color");
+                        }
+                        if (label.toLowerCase() === "button color") {
+                            $(this).addClass("button_color");
+                        }
+
+                        if (label.toLowerCase() === "name embroidery color") {
+                            $(this).addClass("cap_name_embroidery_color");
+                        }
+
+                        if (label.toLowerCase() === "embroidery color") {
+                            $(this).addClass("embroidery_color");
+                        }
+                        if (label.toLowerCase() === "institution embroidery color") {
+                            $(this).addClass("institution_embroidery_color");
+                        }
+                        if (label.toLowerCase() === "piping front") {
+                            $(this).addClass("piping_front");
+                        }
+                        if (label.toLowerCase() === "back pattern") {
+                            $(this).addClass("back_pattern");
+                        }
+                        if (label.toLowerCase() === "button color") {
+                            $(this).addClass("button_color");
+                        }
+
+                        jQuery('.cap_Colour').next('div').addClass('cap_color_select');
+                        jQuery('.gown_Colour').next('div').addClass('gown_color_select');
+                        jQuery('.strimma_color').next('div').addClass('strimma_color');
+                        jQuery('.embroidery_color').next('div').addClass('embroidery_color');
+                        jQuery('.cap_name_embroidery_color').next('div').addClass('cap_name_embroidery_color');
+                        jQuery('.gown_embroidery_color_right').next('div').addClass('gown_embroidery_color_right');
+                        jQuery('.gown_embroidery_color_left').next('div').addClass('gown_embroidery_color_left');
+                        jQuery('.institution_embroidery_color').next('div').addClass('institution_embroidery_color');
+                        jQuery('.piping_front').next('div').addClass('piping_front');
+                        jQuery('.back_pattern').next('div').addClass('back_pattern');
+                        jQuery('.year_dropdown').next('div').addClass('year_dropdown');
+
+                        var select = $(this);
+                        
+                       
+                        if (select && has_swatch_key(label)) {
+                            create_swatches(label, select);
+                        }
+                    });
+
+                    $("#product-options-wrapper").find("input[type=text]").each(function(){
+                        $(this).attr("autocomplete","off");
+                    });
+                } catch (e) {
+                    console.log(e.message);
+                    alert("Option Swatches javascript error." + e.message);
+                }
+            });
+    </script>
+<?php
+}
+?>
+
+
+<style>
+    #top-storelocator-chooser {
+        display: none;
+    }
+</style>
